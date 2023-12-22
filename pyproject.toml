@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "twitter-api"
+version = "0.1.0"
+description = ""
+authors = ["Sribastav Rajguru <sribastavrajguru@analytic-edge.com>"]
+readme = "README.md"
+packages = [{include = "twitter_api"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+tweepy = "^4.14.0"
+pandas = "^2.1.4"
+ipykernel = "^6.27.1"
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^6.1.0"
+black = "^23.12.0"
+mypy = "^1.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
