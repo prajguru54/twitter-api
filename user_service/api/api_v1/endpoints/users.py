@@ -11,6 +11,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt
 from user_service.core import constants
 import os
+from user_service.core.errors import unauthorized_exception
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,12 +20,6 @@ router = APIRouter()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
-
-unauthorized_exception = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Could not validate credentials",
-    headers={"WWW-Authenticate": "Bearer"},
-)
 
 
 def get_password_hash(password: str):
@@ -53,7 +48,8 @@ def login(
 ):
     print("Login user")
     user = crud_user.get_by_email(db, form_data.username)
-    print(f"User: {user}")
+    if user:
+        print(f"User: {user.name}")
     if not user or not verify_password(
         form_data.password, user.hashed_password
     ):

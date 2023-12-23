@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Path
 from user_service.schemas import (
     PostSchema,
     PostSearch,
@@ -11,7 +11,7 @@ from typing import List, Annotated
 import requests
 import os
 from user_service.core import constants
-from user_service.crud import crud_post
+from user_service.crud import crud_post, crud_tag
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -61,3 +61,17 @@ def get_all_posts(
     db: Session = Depends(dependencies.get_db),
 ):
     return crud_post.get_by_user_id(db, user_id=current_user.id)
+
+
+@router.get("/posts_by_tag/{tag}", response_model=list[PostInDBResponse])
+def get_all_posts_with_a_specific_tag(
+    *,
+    current_user: Annotated[UserInDB, Depends(dependencies.get_current_user)],
+    db: Session = Depends(dependencies.get_db),
+    tag: Annotated[str, Path(title="tag title")],
+):
+    if tag_from_db := crud_tag.get_by_title(
+        db, title=tag, user_id=current_user.id
+    ):
+        return tag_from_db.posts
+    return []
