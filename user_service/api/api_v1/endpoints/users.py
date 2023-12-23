@@ -8,14 +8,14 @@ from typing import Annotated, Dict, Any
 from datetime import timedelta, datetime
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import JWTError, jwt
+from jose import jwt
+from user_service.core import constants
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 router = APIRouter()
-
-ACCESS_TOKEN_EXPIRE_MINUTES = 5
-SECRET_KEY = "secret"
-ALGORITHM = "HS256"
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
@@ -41,7 +41,9 @@ def create_access_token(
     expire_at = datetime.now(timezone.utc) + access_token_expires_minutes
     to_encode = data.copy()
     to_encode["expire_at"] = expire_at.isoformat()
-    return jwt.encode(to_encode, key=SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(
+        to_encode, key=os.environ["SECRET_KEY"], algorithm=constants.ALGORITHM
+    )
 
 
 @router.post("/token", response_model=schemas.Token)
@@ -62,34 +64,12 @@ def login(
         )
 
     access_token_expires_minutes = timedelta(
-        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+        minutes=constants.ACCESS_TOKEN_EXPIRE_MINUTES
     )
     access_token = create_access_token(
         {"sub": str(user.id)}, access_token_expires_minutes
     )
     return schemas.Token(access_token=access_token, token_type="bearer")
-
-
-def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
-    db: Session = Depends(dependencies.get_db),
-):
-    print(f"Token: {token}")
-    try:
-        decoded_token = jwt.decode(
-            token, key=SECRET_KEY, algorithms=[ALGORITHM]
-        )
-        print(f"Decoded token: {decoded_token}")
-        user_id = decoded_token.get("sub", '')
-        print(f"user id: {user_id}")
-        if not user_id:
-            raise unauthorized_exception
-    except JWTError as e:
-        raise unauthorized_exception from e
-    if user := crud_user.get(db, user_id):
-        return user
-    else:
-        raise unauthorized_exception
 
 
 @router.post("/", response_model=schemas.UserResponse)
@@ -113,7 +93,9 @@ async def get_user_by_id(
     *,
     db: Session = Depends(dependencies.get_db),
     user_id: Annotated[int, Path(title="The ID of the user to get", gt=0)],
-    current_user: Annotated[schemas.UserInDB, Depends(get_current_user)],
+    current_user: Annotated[
+        schemas.UserInDB, Depends(dependencies.get_current_user)
+    ],
 ):
     if current_user.id != user_id:
         return unauthorized_exception
@@ -123,7 +105,9 @@ async def get_user_by_id(
 @router.put("/{user_id}", response_model=schemas.UserResponse)
 async def update_user(
     *,
-    current_user: Annotated[schemas.UserInDB, Depends(get_current_user)],
+    current_user: Annotated[
+        schemas.UserInDB, Depends(dependencies.get_current_user)
+    ],
     db: Session = Depends(dependencies.get_db),
     user_id: Annotated[int, Path(title="The ID of the user to update", gt=0)],
     user_in: schemas.UserUpdate,

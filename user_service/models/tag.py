@@ -27,7 +27,7 @@ class Tag(Base):
     )
 
     posts: Mapped[List["SavedPost"]] = relationship(
-        secondary="association_table", back_populates="tags"
+        secondary="post_tag_association", back_populates="tags"
     )
 
     parent_associations: Mapped[List["PostTagAssociation"]] = relationship(

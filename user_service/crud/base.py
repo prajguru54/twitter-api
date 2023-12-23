@@ -3,7 +3,6 @@ from typing import (
     Dict,
     Generic,
     List,
-    Optional,
     Type,
     TypeVar,
     Union,
@@ -15,6 +14,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy.orm import Session, Mapper
 from sqlalchemy import inspect
+from sqlalchemy.exc import IntegrityError
 from user_service.core.db import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -56,6 +56,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             print(f"Create unsuccessful: {str(e)}")
             db.rollback()
             raise e
+
+    def create_many(
+        self, db: Session, obj_ins: List[CreateSchemaType]
+    ) -> None:
+        db_objs = [self.model(**obj_in.model_dump()) for obj_in in obj_ins]
+        try:
+            db.add_all(db_objs)
+            db.commit()
+        except IntegrityError as e:
+            db.rollback()
+            raise RuntimeError(e, self.model) from e
 
     def update(
         self,

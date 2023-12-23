@@ -5,6 +5,7 @@ from sqlalchemy import Integer
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship, Mapped
 from user_service.core.db.db_conf import Base
+from datetime import datetime
 from .user import User
 
 if TYPE_CHECKING:
@@ -14,8 +15,9 @@ if TYPE_CHECKING:
 
 class SavedPost(Base):
     title: Mapped[str] = mapped_column()
-    description: Mapped[str] = mapped_column()
-    author: Mapped[str] = mapped_column()
+    description: Mapped[str] = mapped_column(nullable=True)
+    author: Mapped[str] = mapped_column(nullable=True)
+    date_posted: Mapped[datetime] = mapped_column(nullable=True)
 
     # Relationship to user table
     user_id: int = Column(
@@ -29,7 +31,7 @@ class SavedPost(Base):
     )
 
     tags: Mapped[List["Tag"]] = relationship(
-        secondary="association_table", back_populates="posts"
+        secondary="post_tag_association", back_populates="posts"
     )
 
     child_associations: Mapped[List["PostTagAssociation"]] = relationship(

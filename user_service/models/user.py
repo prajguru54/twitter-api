@@ -18,14 +18,14 @@ class User(Base, TimestampMixin):
     is_superuser: bool = Column(Boolean(), default=False)
 
     saved_posts: Mapped[List["SavedPost"]] = relationship(
-        "SavedPost",
+        # "SavedPost",
         back_populates="saved_by",
         uselist=True,
         cascade="all,delete-orphan",
         passive_deletes=True,
     )
     saved_tags: Mapped[List["Tag"]] = relationship(
-        "SavedPost",
+        # "SavedPost",
         back_populates="saved_by",
         uselist=True,
         cascade="all,delete-orphan",
