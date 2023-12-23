@@ -1,21 +1,87 @@
 [tool.poetry]
-name = "twitter-api"
+name = "user-service"
 version = "0.1.0"
 description = ""
-authors = ["Sribastav Rajguru <sribastavrajguru@analytic-edge.com>"]
+authors = ["Sribastav Rajguru <prajguru54@gmail.com>"]
 readme = "README.md"
-packages = [{include = "twitter_api"}]
+packages = [{include = "user_service"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-tweepy = "^4.14.0"
-pandas = "^2.1.4"
-ipykernel = "^6.27.1"
+fastapi = "^0.103.1"
+uvicorn = "^0.23.2"
+sqlalchemy = "^2.0.21"
+alembic = "^1.12.0"
+psycopg2-binary = "^2.9.7"
+python-dotenv = "^1.0.0"
+pydantic-settings = "^2.0.3"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-jose = {extras = ["cryptography"], version = "^3.1.0"}
+pydantic = {extras = ["email"], version = "^2.3.0"}
+sqlalchemy-utils = "^0.41.1"
+httpx = "^0.25.0"
+python-multipart = "^0.0.6"
 
 [tool.poetry.group.dev.dependencies]
+black = "^23.9.1"
 flake8 = "^6.1.0"
-black = "^23.12.0"
-mypy = "^1.8.0"
+pytest = "^7.4.2"
+mypy = "^1.5.1"
+
+[tool.black]
+line-length = 79
+include = '.pyi?$'
+extend-exclude = """
+/(
+    | .venv
+    | .vscode
+    | coverage
+    | tests/test_data
+    | alembic
+)/
+"""
+
+[tool.isort]
+profile = "black"
+line_length = 79
+multi_line_output = 3
+include_trailing_comma = true
+known_third_party = ["celery",  "dotenv", "fastapi","psycopg2", "pydantic", "pytest", "requests", "retry", "sqlalchemy", "sqlalchemy_utils", "starlette", "starlette_context", "syrupy", "toml"]
+
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+show_column_numbers = true
+pretty = true
+color_output = true
+plugins = ["sqlalchemy.ext.mypy.plugin", "pydantic.mypy"]
+exclude = "test_data"
+
+[[tool.mypy.overrides]]
+module = ["sqlalchemy_utils",  "alembic.*","dotenv",   "tests.test_data.*", "retry", "syrupy.*", "psycopg2.*"]
+ignore_missing_imports = true
+
+
+[tool.coverage.run]
+source = ["user_service"]
+
+[tool.pytest.ini_options]
+addopts = "-vvv -ra -q"
+log_cli = true
+log_cli_level = "DEBUG"
+
+[tool.poe.tasks]
+test = "coverage run -m pytest"
+sort = "isort --settings-path=pyproject.toml user_service tests"
+format = "black --config=pyproject.toml user_service tests"
+lint = "flake8 --config=.flake8 user_service tests"
+type-check = "mypy --config=pyproject.toml user_service tests"
+coverage = "coverage report -m --skip-covered"
+coverage-html = "coverage html -d coverage --skip-covered"
+develop = "pre-commit install"
+pre-commit-check = "pre-commit run --all-files"
 
 [build-system]
 requires = ["poetry-core"]
