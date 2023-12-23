@@ -59,11 +59,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def create_many(
         self, db: Session, obj_ins: List[CreateSchemaType]
-    ) -> None:
+    ) -> List[ModelType]:
         db_objs = [self.model(**obj_in.model_dump()) for obj_in in obj_ins]
         try:
             db.add_all(db_objs)
             db.commit()
+            return db_objs
         except IntegrityError as e:
             db.rollback()
             raise RuntimeError(e, self.model) from e

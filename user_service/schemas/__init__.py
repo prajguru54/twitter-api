@@ -1,7 +1,7 @@
 from .user import UserResponse, UserCreate, UserUpdate, UserInDB, UserInDBBase
 from .token import Token, TokenPayload
-from .post import PostSchema, PostSearch
-from .tag import Tag
+from .post import PostSchema, PostSearch, PostInDBBase, PostInDBResponse
+from .tag import TagSchema, TagInDBBase, TagInDBResponse
 
 __all__ = [
     "UserResponse",
@@ -13,5 +13,9 @@ __all__ = [
     "UserInDBBase",
     "PostSchema",
     "PostSearch",
-    "Tag",
+    "PostInDBBase",
+    "PostInDBResponse",
+    "TagSchema",
+    "TagInDBBase",
+    "TagInDBResponse",
 ]

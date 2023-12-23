@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Column, Integer
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from user_service.core.db.db_conf import Base
 
@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 
 class PostTagAssociation(Base):
+    id = Column(Integer, primary_key=True, autoincrement=True)
     post_id: Mapped[int] = mapped_column(
         ForeignKey("saved_post.id"), primary_key=True
     )

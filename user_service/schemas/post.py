@@ -34,3 +34,14 @@ class PostSearch(BaseModel):
     keyword: str
     from_date: Optional[str] = "2023-12-20"
     sort_by: Optional[str] = "popularity"
+
+
+class PostInDBBase(PostSchema):
+    id: Optional[int] = None
+
+    class Config:
+        from_attributes = True
+
+
+class PostInDBResponse(PostInDBBase):
+    pass
