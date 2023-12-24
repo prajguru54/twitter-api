@@ -4,7 +4,14 @@ set -o errexit
 echo "Home dir ------> $HOME"
 
 #Download the SSL certificate
-curl --create-dirs -o $HOME/.postgresql/root.crt 'https://cockroachlabs.cloud/clusters/442c70b5-9424-4f37-9ee4-c81f59229538/cert'
+# curl --create-dirs -o $HOME/.postgresql/root.crt 'https://cockroachlabs.cloud/clusters/442c70b5-9424-4f37-9ee4-c81f59229538/cert'
+
+mkdir -p /opt/render/.postgresql/
+if [ ! -f /opt/render/.postgresql/root.crt ]; then
+    echo "Copying the certificate file from secrets directory --- "
+    cp /etc/secrets/root.crt /opt/render/.postgresql/root.crt
+fi
+
 
 #Download the cockroachlab dependencies for sqlalchemy
 pip3 install git+https://github.com/felipediel/python-broadlink.git@patch-24 sqlalchemy-cockroachdb --force-reinstall --no-deps
