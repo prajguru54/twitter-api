@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Path
 from user_service.schemas import (
     PostSchema,
-    PostSearch,
     PostInDBResponse,
+    PostSearchResponse,
     UserInDB,
 )
 from sqlalchemy.orm import Session
@@ -20,27 +20,28 @@ load_dotenv()
 router = APIRouter()
 
 
-@router.get("/search", response_model=list[PostSchema])
+@router.get("/search/{keyword}", response_model=list[PostSearchResponse])
 def search_posts(
     *,
     db: Session = Depends(dependencies.get_db),
-    posts_to_search: PostSearch,
+    keyword: Annotated[str, Path(title="keyword to search for")],
+    from_date: str = "2023-12-23",
+    sort_by: str = "popularity",
 ):
     api_key = os.environ.get("API_KEY")
     url = (
         f"{constants.API_URL}?"
-        f"q={posts_to_search.keyword}"
-        f"&from={posts_to_search.from_date}"
-        f"&sortBy={posts_to_search.sort_by}"
+        f"q={keyword}"
+        f"&from={from_date}"
+        f"&sortBy={sort_by}"
         f"&apiKey={api_key}"
     )
 
     response = requests.get(url)
-    print(response.status_code)
     response_json = response.json()
     articles = response_json.get("articles")
     return [
-        PostSchema(**article, date_posted=article["publishedAt"])
+        PostSearchResponse(**article, date_posted=article["publishedAt"])
         for article in articles
     ]
 

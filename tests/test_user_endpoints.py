@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi.testclient import TestClient
 from .utils import post_request, get_request, put_request, delete_request
 from user_service.crud import crud_user
-from typing import Dict, Any
+from typing import Dict
 import pytest
 from user_service.core.errors import ResourceNotFoundException
 
@@ -67,7 +67,7 @@ class TestUserCRUDSuccess:
     # @pytest.mark.skip(reason="Getting stuck in alembic downgrade")
     def test_update_user_success(self, client: TestClient, db: Session):
         user = crud_user.get_by_email(
-            db, user_sribastav["email"]
+            db, user_sribastav["email"]  # type:ignore
         )  # type:ignore
         assert user
 

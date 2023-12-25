@@ -4,13 +4,11 @@ from pydantic import BaseModel, validator
 from datetime import datetime
 
 
-# Shared properties
-class PostSchema(BaseModel):
+class PostSearchResponse(BaseModel):
     title: str
     description: Optional[str] = ""
     author: Optional[str] = ""
-    date_posted: Optional[str] = None
-    user_id: int
+    date_posted: Optional[datetime] = None
 
     @validator(
         "date_posted",
@@ -28,6 +26,11 @@ class PostSchema(BaseModel):
                     return converted_date
 
         return converted_date
+
+
+# Shared properties
+class PostSchema(PostSearchResponse):
+    user_id: int
 
 
 class PostSearch(BaseModel):
