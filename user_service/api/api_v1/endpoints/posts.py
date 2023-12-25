@@ -53,7 +53,7 @@ def search_posts(
         ]
     except Exception as e:
         print(f"Some error occurred: {str(e)}")
-        return
+        return []
 
 
 @router.post("/", response_model=List[PostInDBResponse])
