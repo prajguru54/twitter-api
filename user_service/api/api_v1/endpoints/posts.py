@@ -39,7 +39,12 @@ def search_posts(
 
     response = requests.get(url)
     response_json = response.json()
+    print(f"Status - {response_json['status']}")
+    print(f"totalResults - {response_json['totalResults']}")
+
     articles = response_json.get("articles")
+    print(f"Article_1 - {articles[0]}")
+
     return [
         PostSearchResponse(**article, date_posted=article["publishedAt"])
         for article in articles
